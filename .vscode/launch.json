@@ -1,0 +1,36 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "preLaunchTask": "Run debugging",
+            "type": "kotlin",
+            "request": "attach",
+            "name": "Kotlin Attach",
+            "hostName": "localhost",
+            "projectRoot": "${workspaceFolder}\\app",
+            "port": 5005,
+            "timeout": 30000
+        },
+        {
+            "type": "kotlin",
+            "request": "launch",
+            "name": "Kotlin Launch",
+            "preLaunchTask": "Run",
+            "projectRoot": "${workspaceFolder}\\app",
+            "mainClass": "bombers.BombersKt"
+        },
+        {
+            "type": "kotlin",
+            "request": "attach",
+            "name": "Kotlin Debug",
+            "timeout": 30000,
+            "hostName": "localhost",
+            "port": 5005,
+            "projectRoot": "${workspaceFolder}\\app",
+            "preLaunchTask": "Run debugging",
+        }
+    ]
+}

@@ -1,0 +1,53 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run",
+            "type": "shell",
+            "command": "./gradlew",
+            "windows": {
+                "command": ".\\gradlew.bat"
+            },
+            "args": ["run"]
+        },
+        {
+            "label": "Build",
+            "type": "shell",
+            "command": "./gradlew",
+            "windows": {
+                "command": ".\\gradlew.bat"
+            },
+            "args": ["build"]
+        },
+        {
+            "dependsOn": [
+                "Build"
+            ],
+            "label": "Run debugging",
+            "type": "shell",
+            "command": "./gradlew",
+            "windows": {
+                "command": ".\\gradlew.bat"
+            },
+            "args": ["run", "--debug-jvm"],
+            "isBackground": true,
+            "problemMatcher": [
+                {
+                    "pattern":[
+                        {
+                            "regexp": ".",
+                            "file": 1,
+                            "location": 2,
+                            "message": 3
+                        }
+                    ],
+                    "background": {
+                        "activeOnStart": true,
+                        "beginsPattern": ".",
+                        "endsPattern": "."
+                    }
+                }
+            ]
+        }
+    ]
+}
