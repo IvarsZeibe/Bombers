@@ -54,30 +54,10 @@ class Player(val team: Team, coord: Point) {
                 powerUp.isDead = true
             }
         }
-        
-        // if (canMove(gameTime)) {
-        //     val movement = getYMovement()
-        //     if (movement != 0 && tryMoveY(movement, board)) {
-        //         lastMoved = gameTime.currentMilliseconds()
-        //     }
-        // }
     }
     private fun canMove(gameTime: GameTime): Boolean {
         return gameTime.currentMilliseconds() - lastMoved >= movementCooldown
     }
-    // private fun tryMove(movement: Point, game: Game) {
-    //     val newCoord = Point(coord.x + movement.x, coord.y + movement.y)
-    //     if (game.isValidCoord(newCoord) && game.board[newCoord.y][newCoord.x].type == BlockType.Empty) {
-    //         val bomb = game.bombs.firstOrNull { it.coord == newCoord}
-    //         if (bomb == null) {
-    //             return true
-    //         }
-    //         if (canPush && tryPush(bomb, getDirection(movement))) {
-                
-    //         }
-    //     }
-    //     return false
-    // }
     private fun tryMove(toDirection: Direction, game: Game): Boolean {
         val movement = getMovementFromDirection(toDirection)
         val newCoord = Point(coord.x + movement.x, coord.y + movement.y)
@@ -107,26 +87,6 @@ class Player(val team: Team, coord: Point) {
         if (game.isValidCoord(newCoord) && game.board[newCoord.y][newCoord.x].type == BlockType.Empty) {
             bomb.coord = newCoord
             return true
-        }
-        return false
-    }
-    private fun tryMoveX(amount: Int, board: Array<Array<Block>>): Boolean {
-        val newX = coord.x + amount
-        if (newX in 0 until board[0].size) {
-            if (board[coord.y][newX].type == BlockType.Empty) {
-                coord.x = newX;
-                return true
-            }
-        }
-        return false
-    }
-    private fun tryMoveY(amount: Int, board: Array<Array<Block>>): Boolean {
-        val newY = coord.y + amount
-        if (newY in 0 until board.size) {
-            if (board[newY][coord.x].type == BlockType.Empty) {
-                coord.y = newY;
-                return true
-            }
         }
         return false
     }

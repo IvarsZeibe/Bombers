@@ -14,7 +14,6 @@ class Bomb(val number: Team, var coord: Point, val explosionDistance: Int = 1, v
         }
     }
     private fun explode(game: Game) {
-        //val isDirectionOpen = mapOf(Direction.Up to true, Direction.Down to true, Direction.Left to true, Direction.Right to true)
         val openDirections = mutableListOf(Direction.Up, Direction.Down, Direction.Left, Direction.Right)
         val closedDirections: MutableList<Direction> = mutableListOf()
 
@@ -42,9 +41,6 @@ class Bomb(val number: Team, var coord: Point, val explosionDistance: Int = 1, v
                 }
             }
             openDirections.removeIf { closedDirections.contains(it) }
-            // if (isDirectionOpen[Direction.Up]!!) {
-
-            // }
         }
     }
     private fun breakBlock(coord: Point, game: Game) {

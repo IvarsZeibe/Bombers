@@ -49,66 +49,25 @@ class Game(boardLayout : String = "30000000\n01111110\n01111110\n02222220\n00000
                     BlockType.Breakable -> Color.gray
                     BlockType.Unbreakable -> Color.black
                 }
-                val blockArea = Area(Rectangle(blockSize * x, blockSize * y, blockSize, blockSize))
-                graphics as Graphics2D
+                graphics.fillRect(blockSize * x, blockSize * y, blockSize, blockSize)
                 val player = players.firstOrNull { it.getX() == x && it.getY() == y }
+                if (player != null) {
+                    graphics.color = player.color
+                    graphics.fillOval(blockSize * x, blockSize * y, blockSize, blockSize)
+                }
                 val bomb = bombs.firstOrNull { it.coord.x == x && it.coord.y == y }
+                if (bomb != null) {
+                    graphics.color = Color.black
+                    graphics.fillOval(blockSize * x + (blockSize * 0.1f).toInt(), blockSize * y + (blockSize * 0.1f).toInt(), (blockSize * 0.8f).toInt(), (blockSize * 0.8f).toInt())
+                }
                 val powerUp = powerUps.firstOrNull { it.coord.x == x && it.coord.y == y }
-                if (player != null && bomb != null) {
-                    val playerArea = Area(Ellipse2D.Float(blockSize * x * 1f, blockSize * y * 1f, blockSize * 1f, blockSize * 1f))
-                    val bombArea = Area(Ellipse2D.Float(blockSize * x * 1f + blockSize * 0.1f, blockSize * y * 1f + blockSize * 0.1f, blockSize * 0.8f, blockSize * 0.8f))
-                    playerArea.subtract(bombArea)
-                    blockArea.subtract(playerArea)
-                    blockArea.subtract(bombArea)
-                    graphics.fill(blockArea)
-                    graphics.color = player.color
-                    graphics.fill(playerArea)
-                    graphics.color = Color.black
-                    graphics.fill(bombArea)
-                }
-                else if (player != null){
-                    val playerArea = Area(Ellipse2D.Float(blockSize * x * 1f, blockSize * y * 1f, blockSize * 1f, blockSize * 1f))
-                    blockArea.subtract(playerArea)
-                    graphics.fill(blockArea)
-                    graphics.color = player.color
-                    graphics.fill(playerArea)
-                }
-                else if (powerUp != null && bomb != null) {
-                    val bombArea = Area(Ellipse2D.Float(blockSize * x * 1f + blockSize * 0.1f, blockSize * y * 1f + blockSize * 0.1f, blockSize * 0.8f, blockSize * 0.8f))
-                    val powerUpArea = Area(Ellipse2D.Float(blockSize * x * 1f + blockSize * 0.2f, blockSize * y * 1f + blockSize * 0.2f, blockSize * 0.6f, blockSize * 0.6f))
-                    bombArea.subtract(powerUpArea)
-                    blockArea.subtract(bombArea)
-                    blockArea.subtract(powerUpArea)
-                    graphics.fill(blockArea)
-                    graphics.color = Color.black
-                    graphics.fill(bombArea)
+                if (powerUp != null) {
                     graphics.color = when (powerUp) {
                         is CanPushPowerUp -> Color.yellow
                         is ExplosionRangePowerUp -> Color.red
                         else -> Color.pink
                     }
-                    graphics.fill(powerUpArea)
-                }
-                else if (bomb != null) {
-                    val bombArea = Area(Ellipse2D.Float(blockSize * x * 1f + blockSize * 0.1f, blockSize * y * 1f + blockSize * 0.1f, blockSize * 0.8f, blockSize * 0.8f))
-                    blockArea.subtract(bombArea)
-                    graphics.fill(blockArea)
-                    graphics.color = Color.black
-                    graphics.fill(bombArea)
-                }
-                else if (powerUp != null) {
-                    val powerUpArea = Area(Ellipse2D.Float(blockSize * x * 1f + blockSize * 0.2f, blockSize * y * 1f + blockSize * 0.2f, blockSize * 0.6f, blockSize * 0.6f))
-                    blockArea.subtract(powerUpArea)
-                    graphics.fill(blockArea)
-                    graphics.color = when (powerUp) {
-                        is CanPushPowerUp -> Color.yellow
-                        is ExplosionRangePowerUp -> Color.red
-                        else -> Color.pink
-                    }
-                    graphics.fill(powerUpArea)
-                }
-                else {
-                    graphics.fill(blockArea)
+                    graphics.fillOval(blockSize * x + (blockSize * 0.2f).toInt(), blockSize * y + (blockSize * 0.2f).toInt(), (blockSize * 0.6f).toInt(), (blockSize * 0.6f).toInt())
                 }
             }
         }
