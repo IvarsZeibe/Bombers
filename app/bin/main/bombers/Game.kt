@@ -52,14 +52,13 @@ class Game(boardLayout : String = "30000004\n01111110\n01111110\n02222220\n00000
                     BlockType.Unbreakable -> Color.black
                 }
                 graphics.fillRect(blockSize * x, blockSize * y, blockSize, blockSize)
-                val player = players.firstOrNull { it.getX() == x && it.getY() == y }
-                if (player != null) {
-                    player.draw(graphics, this)
-                    // graphics.color = player.color
-                    // graphics.fillOval(blockSize * x, blockSize * y, blockSize, blockSize)
-                }
-                val bomb = bombs.firstOrNull { it.coord.x == x && it.coord.y == y }
-                if (bomb != null) {
+                // val player = players.firstOrNull { it.getX() == x && it.getY() == y }
+                // if (player != null) {
+                //     player.draw(graphics, this)
+                //     // graphics.color = player.color
+                //     // graphics.fillOval(blockSize * x, blockSize * y, blockSize, blockSize)
+                // }
+                bombs.firstOrNull { it.coord.x == x && it.coord.y == y }?.let {
                     graphics.color = Color.black
                     graphics.fillOval(blockSize * x + (blockSize * 0.1f).toInt(), blockSize * y + (blockSize * 0.1f).toInt(), (blockSize * 0.8f).toInt(), (blockSize * 0.8f).toInt())
                 }
@@ -78,6 +77,9 @@ class Game(boardLayout : String = "30000004\n01111110\n01111110\n02222220\n00000
                     graphics.fillRect(blockSize * x + (blockSize * 0.1f).toInt(), blockSize * y + (blockSize * 0.1f).toInt(), (blockSize * 0.8f).toInt(), (blockSize * 0.8f).toInt())
                 }
             }
+        }
+        for (player in players) {
+            player.draw(graphics, this)
         }
     }
     fun update(gameTime: GameTime) : Unit {

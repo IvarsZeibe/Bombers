@@ -2,6 +2,7 @@ package bombers
 
 import java.awt.event.KeyListener
 import java.awt.event.KeyEvent
+import java.awt.KeyboardFocusManager
 
 object Input : KeyListener {
     enum class Action {
@@ -17,7 +18,7 @@ object Input : KeyListener {
         PlayerTwoDropBomb,
         Exit
     }
-    val actions : MutableList<Action> = mutableListOf() 
+    val actions : MutableSet<Action> = mutableSetOf() 
     
     fun clear() : Unit {
         actions.clear()
@@ -29,10 +30,9 @@ object Input : KeyListener {
         println()
     }
     override fun keyTyped(e: KeyEvent) {
-
+        
     }
     override fun keyPressed(e: KeyEvent) {
-        
         when (e.keyCode) {
             KeyEvent.getExtendedKeyCodeForChar('w'.code) -> Action.PlayerOneUp
             KeyEvent.getExtendedKeyCodeForChar('a'.code) -> Action.PlayerOneLeft
@@ -50,6 +50,20 @@ object Input : KeyListener {
         
     }
     override fun keyReleased(e: KeyEvent) {
+        when (e.keyCode) {
+            KeyEvent.getExtendedKeyCodeForChar('w'.code) -> Action.PlayerOneUp
+            KeyEvent.getExtendedKeyCodeForChar('a'.code) -> Action.PlayerOneLeft
+            KeyEvent.getExtendedKeyCodeForChar('d'.code) -> Action.PlayerOneRight
+            KeyEvent.getExtendedKeyCodeForChar('s'.code) -> Action.PlayerOneDown
+            KeyEvent.VK_SPACE -> Action.PlayerOneDropBomb
+            KeyEvent.VK_UP -> Action.PlayerTwoUp
+            KeyEvent.VK_LEFT -> Action.PlayerTwoLeft
+            KeyEvent.VK_RIGHT -> Action.PlayerTwoRight
+            KeyEvent.VK_DOWN -> Action.PlayerTwoDown
+            KeyEvent.VK_NUMPAD0 -> Action.PlayerTwoDropBomb
+            KeyEvent.VK_ESCAPE -> Action.Exit
+            else -> null
+        }?.let{ actions.remove(it) }
         
     }
 }

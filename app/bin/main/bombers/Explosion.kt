@@ -16,8 +16,8 @@ class Explosion(var coord: Point, var length: Float) {
         }
     }
     fun tryDamagePlayer(game: Game) {
-        game.players.firstOrNull { it.getX() == coord.x && it.getY() == coord.y }?.let {
-            it.takeDamage(1)
-        }
+        game.players
+            .firstOrNull { it.getX() == coord.x && it.getY() == coord.y }
+            ?.let { it.takeDamage(1) }
     }
 }

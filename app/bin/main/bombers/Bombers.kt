@@ -5,10 +5,10 @@ import java.awt.*
 import java.awt.event.KeyListener
 import kotlin.time.TimeSource
 import kotlin.system.measureTimeMillis
+import kotlin.math.sign
 
 fun main() {
-    var game = Game()
-    
+    var game = Game()    
     var frame = JFrame("Bombers")
     //frame.setUndecorated(true)
     frame.setSize(800,600)
@@ -21,16 +21,14 @@ fun main() {
         }
     })
     frame.setVisible(true)
-    frame.setAlwaysOnTop(true); 
+    frame.setAlwaysOnTop(true)
 
     frame.addKeyListener(Input)
-
 
     val gameTime = GameTime()
     while (true) {
         if (gameTime.update()) {
             game.update(gameTime)
-            Input.clear()
             frame.repaint()
         }
     }
