@@ -32,7 +32,6 @@ fun main() {
             game.update(gameTime)
             Input.clear()
             frame.repaint()
-            //game.draw(frame.graphics)
         }
     }
 }

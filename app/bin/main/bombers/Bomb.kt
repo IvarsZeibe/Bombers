@@ -6,6 +6,8 @@ import kotlin.random.Random
 class Bomb(val number: Team, var coord: Point, val explosionDistance: Int = 1, var fuseTime: Long = 1500) {
     
     var isDead = false
+    var explosionLength = 2000f
+    
     fun update(gameTime: GameTime, game: Game): Unit {
         fuseTime -= gameTime.deltaMilliseconds()
         if (fuseTime <= 0) {
@@ -25,7 +27,6 @@ class Bomb(val number: Team, var coord: Point, val explosionDistance: Int = 1, v
                     Direction.Left -> Point(coord.x - i, coord.y)
                     Direction.Right -> Point(coord.x + i, coord.y)
                 }
-                
                 if(!game.isValidCoord(blockCoord)) {
                     closedDirections.add(direction)
                     continue;
@@ -35,25 +36,39 @@ class Bomb(val number: Team, var coord: Point, val explosionDistance: Int = 1, v
                     BlockType.Unbreakable -> closedDirections.add(direction)
                     BlockType.Breakable -> {
                         breakBlock(blockCoord, game)
+                        addExplosion(blockCoord, game)
                         closedDirections.add(direction)
                     }
-                    BlockType.Empty -> continue;
+                    BlockType.Empty -> addExplosion(blockCoord, game);
                 }
             }
             openDirections.removeIf { closedDirections.contains(it) }
         }
+        val block = game.board[coord.y][coord.x]
+        when (block.type) {
+            BlockType.Unbreakable -> {}
+            BlockType.Breakable -> {
+                breakBlock(coord, game)
+                addExplosion(coord, game)
+            }
+            BlockType.Empty -> addExplosion(coord, game);
+        }
     }
-    private fun breakBlock(coord: Point, game: Game) {
-        game.board[coord.y][coord.x] = Block(BlockType.Empty)
+    private fun breakBlock(blockCoord: Point, game: Game) {
+        game.board[blockCoord.y][blockCoord.x] = Block(BlockType.Empty)
         if (Random.nextInt(0, 1) == 0) {
             game.powerUps.add(
                 when (Random.nextInt(0, 2)) {
-                    0 -> CanPushPowerUp(coord)
-                    1 -> ExplosionRangePowerUp(coord)
+                    0 -> CanPushPowerUp(blockCoord)
+                    1 -> ExplosionRangePowerUp(blockCoord)
                     else -> throw Exception("Dont have that many power ups")
                 }
             )
         }
-
+    }
+    private fun addExplosion(blockCoord: Point, game: Game) { 
+        if (!game.explosions.any { it.coord == blockCoord }) {
+            game.explosions.add(Explosion(blockCoord, explosionLength))
+        }
     }
 }

@@ -2,13 +2,14 @@ package bombers
 
 import java.awt.Color
 import java.awt.Point
+import java.awt.Graphics
 
 
 
 class Player(val team: Team, coord: Point) {
     val color = when (team) {
-        Team.One -> Color.yellow
-        Team.Two -> Color.red
+        Team.One -> Color.red
+        Team.Two -> Color.green
     }
     // 0 up 1 down 2 left 3 right
     private val controls = when (team) {
@@ -16,6 +17,13 @@ class Player(val team: Team, coord: Point) {
         Team.Two -> arrayOf(Input.Action.PlayerTwoUp, Input.Action.PlayerTwoDown, Input.Action.PlayerTwoLeft, Input.Action.PlayerTwoRight, Input.Action.PlayerTwoDropBomb)
     }
     private var coord = coord 
+    var isDead = false
+    private var health = 2
+    
+    private val immunityLength = 5000
+    private var immunityLeft = 0
+    private val flashingLength = 1000
+    private var lastFlashed = 0L
 
     var canPush = false
     var explosionDistance = 1
@@ -36,6 +44,14 @@ class Player(val team: Team, coord: Point) {
     fun update(gameTime: GameTime, game: Game): Unit {
         updateMovement(gameTime, game)
         updateBombDropping(gameTime, game)
+        immunityLeft = Math.max(0, immunityLeft - gameTime.deltaMilliseconds().toInt())
+    }
+
+    fun draw(graphics: Graphics, game: Game) {
+        if (immunityLeft != 0 && (immunityLeft / flashingLength) % 2 == 1)
+            return
+        graphics.color = color
+        graphics.fillOval(game.blockSize * coord.x, game.blockSize * coord.y, game.blockSize, game.blockSize)
     }
 
     private fun updateMovement(gameTime: GameTime, game: Game): Unit {
@@ -118,5 +134,14 @@ class Player(val team: Team, coord: Point) {
     }
     private fun canBomb(gameTime: GameTime): Boolean {
         return gameTime.currentMilliseconds() - lastBombed >= bombingCooldown
+    }
+    fun takeDamage(amount: Int) {
+        if (immunityLeft != 0)
+            return
+        health = Math.max(0, health - amount)
+        immunityLeft = immunityLength
+        if (health == 0) {
+            isDead = true
+        }
     }
 }
