@@ -23,6 +23,9 @@ class GameTime {
     fun deltaMilliseconds(): Long {
         return deltaTime / 1000000
     }
+    fun deltaSeconds(): Float {
+        return deltaMilliseconds() / 1000f
+    }
     fun currentMilliseconds(): Long {
         return currentTime / 1000000
     }
