@@ -8,17 +8,15 @@ import kotlin.math.sign
 
 
 class Player(val team: Team, coord: Point) {
-    val color = when (team) {
-        Team.One -> Color.red
-        Team.Two -> Color.green
-    }
     // 0 up 1 down 2 left 3 right
     private val controls = when (team) {
         Team.One -> arrayOf(Input.Action.PlayerOneUp, Input.Action.PlayerOneDown, Input.Action.PlayerOneLeft, Input.Action.PlayerOneRight, Input.Action.PlayerOneDropBomb)
         Team.Two -> arrayOf(Input.Action.PlayerTwoUp, Input.Action.PlayerTwoDown, Input.Action.PlayerTwoLeft, Input.Action.PlayerTwoRight, Input.Action.PlayerTwoDropBomb)
     }
-    //private var coord = coord
-
+    val color = when (team) {
+        Team.One -> Color.red
+        Team.Two -> Color.green
+    }
     private var position = Pair<Float, Float>(coord.x.toFloat(), coord.y.toFloat())
 
     var isDead = false
@@ -31,38 +29,32 @@ class Player(val team: Team, coord: Point) {
 
     var canPush = false
     var explosionDistance = 1
-
     private var speed = 5f
 
     private val bombingCooldown = 2000L
     private var lastBombed = 0L
 
-    fun getX(): Int {
-        return Math.round(position.first)
-        //return coord.x
-    }
-    fun getY(): Int {
-        return Math.round(position.second)
-        //return coord.y
-    }
-
-    fun update(gameTime: GameTime, game: Game): Unit {
+    fun getCoordCopy() = Point(Math.round(position.first), Math.round(position.second))
+    fun update(gameTime: GameTime, game: Game) {
         updateMovement(gameTime, game)
         updateBombDropping(gameTime, game)
         immunityLeft = Math.max(0, immunityLeft - gameTime.deltaMilliseconds().toInt())
     }
-
     fun draw(graphics: Graphics, game: Game) {
-        if (immunityLeft != 0 && (immunityLeft / flashingLength) % 2 == 1)
+        if (immunityLeft != 0 && (immunityLeft / flashingLength) % 2 == 1) {
             return
+        }
         graphics.color = color
-        graphics.fillOval(Math.round(game.blockSize * position.first), Math.round(game.blockSize * position.second), game.blockSize, game.blockSize)
+        graphics.fillOval(
+            Math.round(game.blockSize * position.first), 
+            Math.round(game.blockSize * position.second), 
+            game.blockSize, 
+            game.blockSize)
     }
-
-    private fun updateMovement(gameTime: GameTime, game: Game): Unit {
+    private fun updateMovement(gameTime: GameTime, game: Game) {
         val movement = Pair(getXMovement() * speed * gameTime.deltaSeconds(), getYMovement() * speed * gameTime.deltaSeconds())
         if (tryMove(movement, game)) {
-            val powerUp = game.powerUps.firstOrNull { it.coord == Point(getX(), getY()) }
+            val powerUp = game.powerUps.firstOrNull { it.coord == getCoordCopy() }
             if (powerUp != null) {
                 powerUp.addTo(this)
                 powerUp.isDead = true
@@ -73,7 +65,7 @@ class Player(val team: Team, coord: Point) {
         var centerCoord = Pair(Math.round(position.first), Math.round(position.second))
         val direction: Direction
         val targetPosition: Pair<Float, Float>
-        if (movement.first != 0f /*&& Math.abs(centerCoord.second - position.second) < 0.3f*/) {
+        if (movement.first != 0f) {
             targetPosition = Pair(position.first + movement.first, centerCoord.second.toFloat())
             if (movement.first > 0) {
                 direction = Direction.Right
@@ -81,7 +73,7 @@ class Player(val team: Team, coord: Point) {
                 direction = Direction.Left
             }
         }
-        else if (movement.second != 0f /*&& Math.abs(centerCoord.first - position.first) < 0.3f*/) {
+        else if (movement.second != 0f) {
             targetPosition = Pair(centerCoord.first.toFloat(), position.second + movement.second)
             if (movement.second > 0) {
                 direction = Direction.Down
@@ -112,17 +104,9 @@ class Player(val team: Team, coord: Point) {
         }
         return false
     }
-    private fun getMovementFromDirection(direction: Direction): Point {
-        return when (direction) {
-            Direction.Left -> Point(-1, 0)
-            Direction.Right -> Point(1, 0)
-            Direction.Up -> Point(0, -1)
-            Direction.Down -> Point(0, 1)
-        }
-    }
     private fun tryPush(bomb: Bomb, toDirection: Direction, game: Game): Boolean {
-        val movement = getMovementFromDirection(toDirection)
-        val newCoord = Point(bomb.coord.x + movement.x, bomb.coord.y + movement.y)
+        val movement = toDirection.asPoint()
+        val newCoord = bomb.coord + movement
         if (game.isValidCoord(newCoord) && game.board[newCoord.y][newCoord.x].type == BlockType.Empty) {
             bomb.coord = newCoord
             return true
@@ -151,7 +135,7 @@ class Player(val team: Team, coord: Point) {
     }
     private fun updateBombDropping(gameTime: GameTime, game: Game) {
         if (Input.actions.contains(controls[4]) && canBomb(gameTime)) {
-            game.bombs.add(Bomb(team, Point(getX(), getY()), explosionDistance))
+            game.bombs.add(Bomb(team, getCoordCopy(), explosionDistance))
             lastBombed = gameTime.currentMilliseconds()
         }
     }

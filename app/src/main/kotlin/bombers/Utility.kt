@@ -5,8 +5,7 @@ class Utility {
         fun roundAwayFrom(number: Float, from: Float): Int {
             if (number - from < 0) {
                 return Math.floor(number.toDouble()).toInt()
-            }
-            else {
+            } else {
                 return Math.ceil(number.toDouble()).toInt()
             }
         }

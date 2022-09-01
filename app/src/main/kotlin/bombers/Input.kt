@@ -18,20 +18,9 @@ object Input : KeyListener {
         PlayerTwoDropBomb,
         Exit
     }
-    val actions : MutableSet<Action> = mutableSetOf() 
+    val actions: MutableSet<Action> = mutableSetOf() 
     
-    fun clear() : Unit {
-        actions.clear()
-    }
-    fun print() : Unit {
-        for (action in actions) {
-            println(action)
-        }
-        println()
-    }
-    override fun keyTyped(e: KeyEvent) {
-        
-    }
+    override fun keyTyped(e: KeyEvent) {}
     override fun keyPressed(e: KeyEvent) {
         when (e.keyCode) {
             KeyEvent.getExtendedKeyCodeForChar('w'.code) -> Action.PlayerOneUp
@@ -47,7 +36,6 @@ object Input : KeyListener {
             KeyEvent.VK_ESCAPE -> Action.Exit
             else -> null
         }?.let{ actions.add(it) }
-        
     }
     override fun keyReleased(e: KeyEvent) {
         when (e.keyCode) {
@@ -64,6 +52,5 @@ object Input : KeyListener {
             KeyEvent.VK_ESCAPE -> Action.Exit
             else -> null
         }?.let{ actions.remove(it) }
-        
     }
 }

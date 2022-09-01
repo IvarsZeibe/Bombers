@@ -1,57 +1,63 @@
 package bombers
 
 import java.awt.Point
+import java.awt.Graphics
+import java.awt.Color
 import kotlin.random.Random
 
-class Bomb(val number: Team, var coord: Point, val explosionDistance: Int = 1, var fuseTime: Long = 1500) {
-    
+class Bomb(
+    val number: Team, 
+    var coord: Point, 
+    val explosionDistance: Int = 1, 
+    var fuseTime: Long = 1500
+) {
     var isDead = false
-    var explosionLength = 2000f
+    var explosionLength = 500f
     
-    fun update(gameTime: GameTime, game: Game): Unit {
+    fun update(gameTime: GameTime, game: Game) {
         fuseTime -= gameTime.deltaMilliseconds()
         if (fuseTime <= 0) {
-            explode(game)
+            detonate(game)
             isDead = true
         }
     }
-    private fun explode(game: Game) {
-        val openDirections = mutableListOf(Direction.Up, Direction.Down, Direction.Left, Direction.Right)
-        val closedDirections: MutableList<Direction> = mutableListOf()
-
-        for (i in 1..explosionDistance) {
-            for (direction in openDirections) {
-                val blockCoord = when (direction) {
-                    Direction.Up -> Point(coord.x, coord.y - i)
-                    Direction.Down -> Point(coord.x, coord.y + i)
-                    Direction.Left -> Point(coord.x - i, coord.y)
-                    Direction.Right -> Point(coord.x + i, coord.y)
+    fun draw(graphics: Graphics, game: Game) {
+        val blockSize = game.blockSize
+        graphics.color = Color.black
+        graphics.fillOval(
+            blockSize * coord.x + (blockSize * 0.1f).toInt(), 
+            blockSize * coord.y + (blockSize * 0.1f).toInt(), 
+            (blockSize * 0.8f).toInt(), 
+            (blockSize * 0.8f).toInt())
+    }
+    private fun detonate(game: Game) {
+        explodeAt(coord, game)
+        if (isExplosionStoppedBy(game.board[coord.y][coord.x].type)) {
+            return
+        }
+        loop@ for (direction in Direction.values()) {
+            for (offsetFromCenter in 1..explosionDistance) {
+                val blockCoord = coord + direction.asPoint() * offsetFromCenter
+                if (!game.isValidCoord(blockCoord)) {
+                    continue@loop
                 }
-                if(!game.isValidCoord(blockCoord)) {
-                    closedDirections.add(direction)
-                    continue;
-                }
-                val block = game.board[blockCoord.y][blockCoord.x]
-                when (block.type) {
-                    BlockType.Unbreakable -> closedDirections.add(direction)
-                    BlockType.Breakable -> {
-                        breakBlock(blockCoord, game)
-                        addExplosion(blockCoord, game)
-                        closedDirections.add(direction)
-                    }
-                    BlockType.Empty -> addExplosion(blockCoord, game);
+                val blockType = game.board[blockCoord.y][blockCoord.x].type
+                explodeAt(blockCoord, game)
+                if (isExplosionStoppedBy(blockType)) {
+                    continue@loop
                 }
             }
-            openDirections.removeIf { closedDirections.contains(it) }
         }
-        val block = game.board[coord.y][coord.x]
+    }
+    private fun explodeAt(blockCoord: Point, game: Game) {
+        val block = game.board[blockCoord.y][blockCoord.x]
         when (block.type) {
             BlockType.Unbreakable -> {}
             BlockType.Breakable -> {
-                breakBlock(coord, game)
-                addExplosion(coord, game)
+                breakBlock(blockCoord, game)
+                addExplosion(blockCoord, game)
             }
-            BlockType.Empty -> addExplosion(coord, game);
+            BlockType.Empty -> addExplosion(blockCoord, game);
         }
     }
     private fun breakBlock(blockCoord: Point, game: Game) {
@@ -61,7 +67,7 @@ class Bomb(val number: Team, var coord: Point, val explosionDistance: Int = 1, v
                 when (Random.nextInt(0, 2)) {
                     0 -> CanPushPowerUp(blockCoord)
                     1 -> ExplosionRangePowerUp(blockCoord)
-                    else -> throw Exception("Dont have that many power ups")
+                    else -> throw Exception("Don't have that many power ups")
                 }
             )
         }
@@ -71,4 +77,5 @@ class Bomb(val number: Team, var coord: Point, val explosionDistance: Int = 1, v
             game.explosions.add(Explosion(blockCoord, explosionLength))
         }
     }
+    private fun isExplosionStoppedBy(blockType: BlockType) = blockType != BlockType.Empty
 }
