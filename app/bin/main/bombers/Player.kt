@@ -5,17 +5,17 @@ import java.awt.Point
 import java.awt.Graphics
 import kotlin.math.sign
 
-
-
 class Player(val team: Team, coord: Point) {
     // 0 up 1 down 2 left 3 right
     private val controls = when (team) {
-        Team.One -> arrayOf(Input.Action.PlayerOneUp, Input.Action.PlayerOneDown, Input.Action.PlayerOneLeft, Input.Action.PlayerOneRight, Input.Action.PlayerOneDropBomb)
-        Team.Two -> arrayOf(Input.Action.PlayerTwoUp, Input.Action.PlayerTwoDown, Input.Action.PlayerTwoLeft, Input.Action.PlayerTwoRight, Input.Action.PlayerTwoDropBomb)
+        Team.One -> arrayOf(InputAction.PlayerOneUp, InputAction.PlayerOneDown, InputAction.PlayerOneLeft, InputAction.PlayerOneRight, InputAction.PlayerOneDropBomb)
+        Team.Two -> arrayOf(InputAction.PlayerTwoUp, InputAction.PlayerTwoDown, InputAction.PlayerTwoLeft, InputAction.PlayerTwoRight, InputAction.PlayerTwoDropBomb)
+        Team.Three -> arrayOf(InputAction.PlayerThreeUp, InputAction.PlayerThreeDown, InputAction.PlayerThreeLeft, InputAction.PlayerThreeRight, InputAction.PlayerThreeDropBomb)
     }
     val color = when (team) {
         Team.One -> Color.red
         Team.Two -> Color.green
+        Team.Three -> Color.blue
     }
     private var position = Pair<Float, Float>(coord.x.toFloat(), coord.y.toFloat())
 
@@ -29,15 +29,14 @@ class Player(val team: Team, coord: Point) {
 
     var canPush = false
     var explosionDistance = 1
+    var maxBombCount = 1
+    var currentBombCount = 0
     private var speed = 5f
-
-    private val bombingCooldown = 2000L
-    private var lastBombed = 0L
 
     fun getCoordCopy() = Point(Math.round(position.first), Math.round(position.second))
     fun update(gameTime: GameTime, game: Game) {
         updateMovement(gameTime, game)
-        updateBombDropping(gameTime, game)
+        updateBombDropping(game)
         immunityLeft = Math.max(0, immunityLeft - gameTime.deltaMilliseconds().toInt())
     }
     fun draw(graphics: Graphics, game: Game) {
@@ -115,32 +114,35 @@ class Player(val team: Team, coord: Point) {
     }
     private fun getXMovement(): Int {
         var x = 0
-        if (Input.actions.contains(controls[3])) {
+        if (GameInput.actions.contains(controls[3])) {
             x++
         }
-        if (Input.actions.contains(controls[2])) {
+        if (GameInput.actions.contains(controls[2])) {
             x--
         }
         return x
     }
     private fun getYMovement(): Int {
         var y = 0
-        if (Input.actions.contains(controls[1])) {
+        if (GameInput.actions.contains(controls[1])) {
             y++
         }
-        if (Input.actions.contains(controls[0])) {
+        if (GameInput.actions.contains(controls[0])) {
             y--
         }
         return y
     }
-    private fun updateBombDropping(gameTime: GameTime, game: Game) {
-        if (Input.actions.contains(controls[4]) && canBomb(gameTime)) {
-            game.bombs.add(Bomb(team, getCoordCopy(), explosionDistance))
-            lastBombed = gameTime.currentMilliseconds()
+    private fun updateBombDropping(game: Game) {
+        if (GameInput.actions.contains(controls[4]) 
+        && canBomb()) {
+            val bomb = Bomb(team, getCoordCopy(), explosionDistance)
+            bomb.onDetonate += { currentBombCount-- }
+            game.bombs.add(bomb)
+            currentBombCount++
         }
     }
-    private fun canBomb(gameTime: GameTime): Boolean {
-        return gameTime.currentMilliseconds() - lastBombed >= bombingCooldown
+    private fun canBomb(): Boolean {
+        return currentBombCount < maxBombCount
     }
     fun takeDamage(amount: Int) {
         if (immunityLeft != 0)

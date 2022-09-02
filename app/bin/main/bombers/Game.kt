@@ -5,7 +5,7 @@ import java.awt.Graphics
 import java.awt.Color
 
 class Game(boardLayout: String = 
-"""30122100
+"""30122105
 02111120
 11022011
 22022022
@@ -36,6 +36,7 @@ class Game(boardLayout: String =
                     '2' -> Block(BlockType.Unbreakable)
                     '3' -> Block(BlockType.Empty).also { players.add(Player(Team.One, Point(rowIndex, columnIndex))) }
                     '4' -> Block(BlockType.Empty).also { players.add(Player(Team.Two, Point(rowIndex, columnIndex))) }
+                    '5' -> Block(BlockType.Empty).also { players.add(Player(Team.Three, Point(rowIndex, columnIndex))) }
                     else -> throw Exception("Invalid board layout, $rowsAsStrings[row][column] does not represent a block.")
                 }
             }

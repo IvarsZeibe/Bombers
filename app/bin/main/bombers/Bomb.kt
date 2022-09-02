@@ -13,6 +13,8 @@ class Bomb(
 ) {
     var isDead = false
     var explosionLength = 500f
+
+    val onDetonate = Action()
     
     fun update(gameTime: GameTime, game: Game) {
         fuseTime -= gameTime.deltaMilliseconds()
@@ -31,6 +33,7 @@ class Bomb(
             (blockSize * 0.8f).toInt())
     }
     private fun detonate(game: Game) {
+        onDetonate()
         explodeAt(coord, game)
         if (isExplosionStoppedBy(game.board[coord.y][coord.x].type)) {
             return
@@ -64,9 +67,10 @@ class Bomb(
         game.board[blockCoord.y][blockCoord.x] = Block(BlockType.Empty)
         if (Random.nextInt(0, 1) == 0) {
             game.powerUps.add(
-                when (Random.nextInt(0, 2)) {
+                when (Random.nextInt(0, 3)) {
                     0 -> CanPushPowerUp(blockCoord)
                     1 -> ExplosionRangePowerUp(blockCoord)
+                    2 -> BombCountPowerUp(blockCoord)
                     else -> throw Exception("Don't have that many power ups")
                 }
             )

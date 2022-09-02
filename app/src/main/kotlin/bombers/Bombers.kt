@@ -11,6 +11,10 @@ fun main() {
     val gameTime = GameTime()
     while (true) {
         if (gameTime.update()) {
+            GameInput.update()
+            if (InputAction.Exit in GameInput.actions) {
+                System.exit(0)
+            }
             game.update(gameTime)
             frame.repaint()
         }
@@ -31,6 +35,6 @@ fun createGameFrame(game: Game): JFrame {
         setVisible(true)
         setAlwaysOnTop(true)
     
-        addKeyListener(Input)
+        addKeyListener(GameInput)
     }
 }

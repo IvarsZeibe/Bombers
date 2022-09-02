@@ -33,3 +33,10 @@ class ExplosionRangePowerUp(coord: Point) : PowerUp(coord) {
         player.explosionDistance++
     }
 }
+
+class BombCountPowerUp(coord: Point) : PowerUp(coord) {
+    override val color = Color.orange
+    override fun addTo(player: Player) {
+        player.maxBombCount++
+    }
+}
