@@ -106,7 +106,10 @@ class Player(val team: Team, coord: Point) {
     private fun tryPush(bomb: Bomb, toDirection: Direction, game: Game): Boolean {
         val movement = toDirection.asPoint()
         val newCoord = bomb.coord + movement
-        if (game.isValidCoord(newCoord) && game.board[newCoord.y][newCoord.x].type == BlockType.Empty) {
+        if (game.isValidCoord(newCoord) 
+            && game.board[newCoord.y][newCoord.x].type == BlockType.Empty
+            && game.bombs.none { it.coord == newCoord }
+        ) {
             bomb.coord = newCoord
             return true
         }
@@ -135,7 +138,11 @@ class Player(val team: Team, coord: Point) {
     private fun updateBombDropping(game: Game) {
         if (GameInput.actions.contains(controls[4]) 
         && canBomb()) {
-            val bomb = Bomb(team, getCoordCopy(), explosionDistance)
+            val bombCoord = getCoordCopy()
+            if (game.bombs.any { it.coord == bombCoord }) {
+                return
+            }
+            val bomb = Bomb(team, bombCoord, explosionDistance)
             bomb.onDetonate += { currentBombCount-- }
             game.bombs.add(bomb)
             currentBombCount++
