@@ -18,7 +18,7 @@ class Bomb(
     
     fun update(gameTime: GameTime, game: Game) {
         fuseTime -= gameTime.deltaMilliseconds()
-        if (fuseTime <= 0) {
+        if (fuseTime <= 0 || game.explosions.any { it.coord == coord }) {
             detonate(game)
             isDead = true
         }
@@ -60,8 +60,16 @@ class Bomb(
                 breakBlock(blockCoord, game)
                 addExplosion(blockCoord, game)
             }
-            BlockType.Empty -> addExplosion(blockCoord, game);
+            BlockType.Empty -> {
+                destroyPowerUp(blockCoord, game)
+                addExplosion(blockCoord, game)
+            }
         }
+    }
+    private fun destroyPowerUp(blockCoord: Point, game: Game) {
+        game.powerUps
+            .filter { it.coord == blockCoord }
+            .forEach { it.isDead = true }
     }
     private fun breakBlock(blockCoord: Point, game: Game) {
         game.board[blockCoord.y][blockCoord.x] = Block(BlockType.Empty)

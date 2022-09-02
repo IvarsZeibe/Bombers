@@ -8,7 +8,7 @@ class Explosion(var coord: Point, var length: Float) {
     var isDead = false
 
     fun update(gameTime: GameTime, game: Game) {
-        tryDamagePlayers(game)
+        damagePlayers(game)
         updateIsDead(gameTime)
     }
     fun draw(graphics: Graphics, game: Game) {
@@ -20,10 +20,11 @@ class Explosion(var coord: Point, var length: Float) {
             (blockSize * 0.8f).toInt(), 
             (blockSize * 0.8f).toInt())
     }
-    fun tryDamagePlayers(game: Game) {
+    fun damagePlayers(game: Game) {
         game.players
             .filter { it.getCoordCopy() == coord }
-            .forEach { it.takeDamage(1) }
+            .forEach { it.takeDamage(1)
+        }
     }
     fun updateIsDead(gameTime: GameTime) {
         length -= gameTime.deltaMilliseconds()
