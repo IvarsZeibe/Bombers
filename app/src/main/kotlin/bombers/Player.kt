@@ -160,4 +160,5 @@ class Player(val team: Team, coord: Point) {
             isDead = true
         }
     }
+    fun getHealth() = health
 }

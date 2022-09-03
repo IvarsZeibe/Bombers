@@ -3,6 +3,7 @@ package bombers
 import java.awt.Point
 import java.awt.Graphics
 import java.awt.Color
+import kotlin.comparisons.compareBy
 
 class Game(boardLayout: String = 
 """30122105
@@ -16,13 +17,13 @@ class Game(boardLayout: String =
 
     val blockSize = 40;
     // board[y][x]
-    val board : Array<Array<Block>>
+    var board : Array<Array<Block>> = emptyArray()
     val players : MutableList<Player> = mutableListOf()
     val bombs : MutableList<Bomb> = mutableListOf()
     val explosions : MutableList<Explosion> = mutableListOf()
     val powerUps : MutableList<PowerUp> = mutableListOf()
 
-    init { board = createBoard(boardLayout) }
+    init { reset(boardLayout) }
 
     fun createBoard(boardLayout: String): Array<Array<Block>> {
         var rowsAsStrings = boardLayout.split("\n")
@@ -41,6 +42,14 @@ class Game(boardLayout: String =
                 }
             }
         }
+        .also { players.sortWith(compareBy { it.team }) }
+    }
+    fun reset(boardLayout: String) {
+        players.clear()
+        bombs.clear()
+        explosions.clear()
+        powerUps.clear()
+        board = createBoard(boardLayout)
     }
     fun draw(graphics: Graphics) {
         for ((y, row) in board.withIndex()) {
