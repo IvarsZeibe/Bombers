@@ -32,33 +32,70 @@ fun createGameFrame(game: Game): JFrame {
         setLayout(GridBagLayout())
         val c = GridBagConstraints()
         c.fill = GridBagConstraints.BOTH
-        c.weightx = 0.5
+        c.weightx = 0.7
         c.weighty = 0.5
         c.gridx = 0
         c.gridy = 0
         add(createGamePanel(game), c)
+
         c.fill = GridBagConstraints.BOTH
-        c.weightx = 0.5
+        c.weightx = 0.3
         c.weighty = 0.9
         c.gridx = 1
+        c.gridwidth = 3
         c.gridy = 0
         add(createStatsMenu(game), c)
-        c.weightx = 0.5
-        c.weighty = 0.1
+
+        c.weightx = 0.05
+        c.weighty = 0.05
+        c.gridwidth = 1
         c.gridx = 1
         c.gridy = 1
+        val decreaseButton = JButton("<")
+        decreaseButton.addActionListener(object : ActionListener {
+            override fun actionPerformed(e: ActionEvent) {
+                game.maxPlayers--
+                requestFocusInWindow()
+            }
+        })
+        add(decreaseButton, c)
+
+        c.weightx = 0.2
+        c.weighty = 0.05
+        c.gridwidth = 1
+        c.gridx = 2
+        c.gridy = 1
+        val label = object : JLabel("", SwingConstants.CENTER) {
+            override fun paintComponent(g: Graphics) {
+                super.paintComponent(g)
+                text = game.maxPlayers.toString()
+            }
+        }
+        add(label, c)
+
+        c.weightx = 0.05
+        c.weighty = 0.05
+        c.gridwidth = 1
+        c.gridx = 3
+        c.gridy = 1
+        val increaseButton = JButton(">")
+        increaseButton.addActionListener(object : ActionListener {
+            override fun actionPerformed(e: ActionEvent) {
+                game.maxPlayers++
+                requestFocusInWindow()
+            }
+        })
+        add(increaseButton, c)
+
+        c.weightx = 0.3
+        c.weighty = 0.1
+        c.gridwidth = 3
+        c.gridx = 1
+        c.gridy = 2
         val resetButton = JButton("Reset")
         resetButton.addActionListener(object : ActionListener {
             override fun actionPerformed(e: ActionEvent) {
-                game.reset(
-"""30122105
-02111120
-11022011
-22022022
-22022022
-11022011
-02111120
-00122104""")
+                game.reset()
                 requestFocusInWindow()
             }
         })

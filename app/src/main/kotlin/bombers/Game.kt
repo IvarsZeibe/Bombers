@@ -5,17 +5,20 @@ import java.awt.Graphics
 import java.awt.Color
 import kotlin.comparisons.compareBy
 
-class Game(boardLayout: String = 
-"""30122105
+class Game(var boardLayout: String = 
+"""30122103
 02111120
 11022011
 22022022
 22022022
 11022011
 02111120
-00122104""") {
-
-    val blockSize = 40;
+00122103""") {
+    val blockSize = 40
+    var maxPlayers = 3
+    set(value) {
+        field = value.coerceAtLeast(1)
+    }
     // board[y][x]
     var board : Array<Array<Block>> = emptyArray()
     val players : MutableList<Player> = mutableListOf()
@@ -23,9 +26,9 @@ class Game(boardLayout: String =
     val explosions : MutableList<Explosion> = mutableListOf()
     val powerUps : MutableList<PowerUp> = mutableListOf()
 
-    init { reset(boardLayout) }
+    init { reset() }
 
-    fun createBoard(boardLayout: String): Array<Array<Block>> {
+    fun createBoard(): Array<Array<Block>> {
         var rowsAsStrings = boardLayout.split("\n")
         return Array<Array<Block>>(8) {
             columnIndex ->
@@ -35,21 +38,24 @@ class Game(boardLayout: String =
                     '0' -> Block(BlockType.Empty)
                     '1' -> Block(BlockType.Breakable)
                     '2' -> Block(BlockType.Unbreakable)
-                    '3' -> Block(BlockType.Empty).also { players.add(Player(Team.One, Point(rowIndex, columnIndex))) }
-                    '4' -> Block(BlockType.Empty).also { players.add(Player(Team.Two, Point(rowIndex, columnIndex))) }
-                    '5' -> Block(BlockType.Empty).also { players.add(Player(Team.Three, Point(rowIndex, columnIndex))) }
+                    '3' -> Block(BlockType.Empty)
+                    .also {
+                        if (players.size < maxPlayers ) {
+                            players.add(Player(Team.values()[players.size], Point(rowIndex, columnIndex)))
+                        }
+                    }
                     else -> throw Exception("Invalid board layout, $rowsAsStrings[row][column] does not represent a block.")
                 }
             }
         }
         .also { players.sortWith(compareBy { it.team }) }
     }
-    fun reset(boardLayout: String) {
+    fun reset() {
         players.clear()
         bombs.clear()
         explosions.clear()
         powerUps.clear()
-        board = createBoard(boardLayout)
+        board = createBoard()
     }
     fun draw(graphics: Graphics) {
         for ((y, row) in board.withIndex()) {
