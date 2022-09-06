@@ -6,14 +6,14 @@ import java.awt.Color
 import kotlin.comparisons.compareBy
 
 class Game(var boardLayout: String = 
-"""30122103
+"""30122100
 02111120
 11022011
 22022022
 22022022
 11022011
 02111120
-00122103""") {
+50122104""") {
     val blockSize = 40
     var maxPlayers = 3
     set(value) {
@@ -34,21 +34,23 @@ class Game(var boardLayout: String =
             columnIndex ->
             Array<Block>(8) {
                 rowIndex ->
-                when (rowsAsStrings[rowIndex][columnIndex]) {
+                when (rowsAsStrings[columnIndex][rowIndex]) {
                     '0' -> Block(BlockType.Empty)
                     '1' -> Block(BlockType.Breakable)
                     '2' -> Block(BlockType.Unbreakable)
-                    '3' -> Block(BlockType.Empty)
-                    .also {
-                        if (players.size < maxPlayers ) {
-                            players.add(Player(Team.values()[players.size], Point(rowIndex, columnIndex)))
-                        }
-                    }
+                    '3' -> Block(BlockType.Empty).also { addPlayer(Point(rowIndex, columnIndex), 1) }
+                    '4' -> Block(BlockType.Empty).also { addPlayer(Point(rowIndex, columnIndex), 2) }
+                    '5' -> Block(BlockType.Empty).also { addPlayer(Point(rowIndex, columnIndex), 3) }
                     else -> throw Exception("Invalid board layout, $rowsAsStrings[row][column] does not represent a block.")
                 }
             }
         }
         .also { players.sortWith(compareBy { it.team }) }
+    }
+    fun addPlayer(coord: Point, minPlayers: Int) {
+        if (maxPlayers >= minPlayers && players.size < maxPlayers ) {
+            players.add(Player(Team.values()[players.size % Team.values().count()], coord))
+        }
     }
     fun reset() {
         players.clear()
